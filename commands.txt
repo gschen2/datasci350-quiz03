@@ -141,4 +141,84 @@ stop
 git commit creates a commit message and a history of changes to a file or directory.
 
 The original max_tokens value of 15 was too small, causing the model to stop before completing its JSON response. Increasing it to 100 allowed the model to generate valid, complete JSON. The finish_reason is stop, indicating that the model completed its response normally.
-9. 
+
+9. Launched an EC2 instance through the AWS
+Created a Linux EC2 virtual machine on AWS to run the traffic analysis Python script in a cloud environment. Configured SSH access using a private key and restricted inbound access to my IP address.
+Instance ID: i-05ed311be5affee2a
+Public IPv4: 3.14.5.134
+Public DNS: ec2-3-14-5-134.us-east-2.compute.amazonaws.com
+
+10.
+chmod 400 ~/Downloads/quiz3-key.pem
+Restricts access to the private SSH key so only its owner can read it.
+
+ssh -i ~/Downloads/quiz3-key.pem ubuntu@ec2-3-14-5-134.us-east-2.compute.amazonaws.com
+Connects securely to the Ubuntu EC2 instance using SSH and the private key.
+
+Successfully connected to Ubuntu 26.04.1 LTS. Remote terminal prompt:
+ubuntu@ip-172-31-24-246:~$
+
+11. 
+sudo apt update
+Updates the Ubuntu package index so the system knows about the latest available packages
+
+sudo apt install -y python3-pandas python3-matplotlib python3-seaborn
+Installs Pandas for data manipulation, Matplotlib for plotting, and Seaborn for statistical visualization.
+
+12.
+exit
+
+scp -i ~/Downloads/quiz3-key.pem aws/traffic_analysis.py aws/website_traffic.txt ubuntu@ec2-3-14-5-134.us-east-2.compute.amazonaws.com:~
+
+Uses secure copy (SCP) to transfer the Python analysis script and traffic dataset from the local repository to the home directory of the Ubuntu EC2 instance.
+
+13. 
+ssh -i ~/Downloads/quiz3-key.pem ubuntu@ec2-3-14-5-134.us-east-2.compute.amazonaws.com
+python3 traffic_analysis.py > results.txt
+Runs the traffic analysis script and redirects its output into results.txt.
+cat /var/lib/cloud/data/instance-id >> results.txt
+Appends the EC2 instance ID to results.txt.
+sha256sum results.txt > fingerprint.txt
+Calculates the SHA-256 checksum of results.txt and saves it in fingerprint.txt.
+
+14.
+exit
+scp -i ~/Downloads/quiz3-key.pem ubuntu@ec2-3-14-5-134.us-east-2.compute.amazonaws.com:~/results.txt aws/
+scp -i ~/Downloads/quiz3-key.pem ubuntu@ec2-3-14-5-134.us-east-2.compute.amazonaws.com:~/fingerprint.txt aws/
+scp -i ~/Downloads/quiz3-key.pem ubuntu@ec2-3-14-5-134.us-east-2.compute.amazonaws.com:~/traffic_analysis.png aws/
+
+15. Terminated the Ubuntu EC2 instance through the AWS Management Console.
+When an EC2 instance is stopped rather than terminated, you may still pay for its  EBS storage and other billable resources, such as an allocated Elastic IP address.
+Termination permanently removes the EC2 instance. Stopping an instance only shuts it down temporarily; attached EBS storage and other billable resources may continue to incur charges.
+
+Bonus: 
+ollama pull embeddinggemma
+
+ollama pull llama3.2:1b
+
+pip install ollama chromadb
+
+cd rag
+
+python rag.py
+How big is the llama3.2:1b download?
+Sources: [{'file': 'lecture-12-readme.md'}, {'file': 'lecture-12-readme.md'}, {'file': 'lecture-11-readme.md'}]
+Similarity: 0.63
+Similarity: 0.59
+Similarity: 0.55
+According to the data, the download size of the `llama3.2:1b` model is approximately 1.3 GB.
+
+python rag.py
+Who won the 2022 World Cup?
+Sources: [{'file': 'lecture-11-readme.md'}, {'file': 'course-readme.md'}, {'file': 'lecture-10-readme.md'}]
+Similarity: 0.23
+Similarity: 0.22
+Similarity: 0.22
+There is no mention of the 2022 World Cup in the provided data. The text only contains information abouta course material, a download of R files, and some general text about the content.
+Retrieval still returns three chunks because the system is configured to retrieve the top three results for every question, while the low similarity scores (0.23, 0.22, and 0.22) indicate that none of the retrieved chunks is strongly relevant to the World Cup question.
+
+git add rag/ commands.txt
+git commit -m "Complete RAG exercise"
+
+AI Usage: 
+I used ChatGPT for assistance with several parts of the quiz. For the Ollama tasks, I used it to understand how to configure the Modelfile, including the system prompt, temperature, and other parameters. For Task 7, I used it to understand the differences in token usage between the original model and my customized commentator model. For Task 8, I used ChatGPT to troubleshoot a `JSONDecodeError` that occurred because the response was being cut off by the 15-token limit. I increased the limit to 100 tokens, which allowed the script to run successfully. I also used ChatGPT for guidance on the AWS tasks, including connecting to the EC2 instance through SSH, installing Python packages, transferring files using SCP, and running the traffic analysis script. One example prompt I used was: "I'm getting a JSONDecodeError when running ask_json.py. Can you explain why this is happening and help me fix it?" I personally ran the commands, edited the files, and completed the AWS setup. ChatGPT provided explanations and troubleshooting assistance but did not independently execute commands or operate my computer.
